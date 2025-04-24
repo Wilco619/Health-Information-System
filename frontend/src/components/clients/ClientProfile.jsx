@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
-import api from '../../auth/services/api';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { clientAPI } from '../../auth/services/api';
 
 const ClientProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchClientProfile();
@@ -15,15 +16,26 @@ const ClientProfile = () => {
 
   const fetchClientProfile = async () => {
     try {
-      const response = await api.get(`/clients/${id}/profile/`);
+      const response = await clientAPI.getProfile(id);
       setClient(response.data);
       setError(null);
     } catch (err) {
       setError('Failed to fetch client profile');
-      console.error(err);
+      console.error('Profile error:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await clientAPI.deleteClient(id);
+      navigate('/clients');
+    } catch (err) {
+      setError('Failed to delete client');
+      console.error('Delete error:', err);
+    }
+    setShowDeleteModal(false);
   };
 
   if (loading) return <div className="text-center mt-5"><div className="spinner-border" /></div>;
@@ -32,7 +44,23 @@ const ClientProfile = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Client Profile</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Client Profile</h2>
+        <div>
+          <Link 
+            to={`/clients/${id}/edit`}
+            className="btn btn-primary me-2"
+          >
+            Edit Profile
+          </Link>
+          <button 
+            className="btn btn-danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            Delete Client
+          </button>
+        </div>
+      </div>
       
       <div className="card mb-4">
         <div className="card-body">
@@ -95,6 +123,42 @@ const ClientProfile = () => {
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setShowDeleteModal(false)}
+                />
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete {client.full_name}? This action cannot be undone.</p>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-danger"
+                  onClick={handleDelete}
+                >
+                  Delete Client
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

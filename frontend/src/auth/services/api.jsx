@@ -76,11 +76,20 @@ export const clientAPI = {
       notes: notes
     }),
 
+  getProfile: (clientId) => 
+    api.get(`/clients/${clientId}/profile/`),
+
   getClient: (clientId) =>
     api.get(`/clients/${clientId}/`),
     
   getPrograms: () =>
-    api.get('/programs/')
+    api.get('/programs/'),
+
+  updateClient: (clientId, data) =>
+    api.put(`/clients/${clientId}/`, data),
+    
+  deleteClient: (clientId) =>
+    api.delete(`/clients/${clientId}/`),
 };
 
 export default api;

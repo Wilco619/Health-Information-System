@@ -11,6 +11,7 @@ import ClientList from './components/clients/ClientList'
 import ClientProfile from './components/clients/ClientProfile'
 import ClientRegistration from './components/clients/ClientRegistration'
 import ClientEnrollment from './components/clients/ClientEnrollment'
+import ClientEdit from './components/clients/ClientEdit'
 
 import './App.css'
 
@@ -72,6 +73,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ClientEnrollment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clients/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <ClientEdit />
                 </ProtectedRoute>
               }
             />
