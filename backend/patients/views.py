@@ -2,8 +2,11 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.functions import TruncMonth
 from django.shortcuts import get_object_or_404
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from .models import HealthProgram, Client, Enrollment
 from .serializers import (
@@ -131,3 +134,67 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(enrollment)
         return Response(serializer.data)
+
+
+class DashboardViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        # Get current date and date 6 months ago
+        now = timezone.now()
+        six_months_ago = now - timedelta(days=180)
+
+        # Calculate statistics
+        total_clients = Client.objects.count()
+        total_programs = HealthProgram.objects.count()
+        enrolled_clients = Client.objects.filter(enrollments__isnull=False).distinct().count()
+
+        # Get recent clients
+        recent_clients = Client.objects.annotate(
+            enrolled_programs=Count('enrollments')
+        ).order_by('-registered_at')[:5]
+
+        # Get recent programs
+        recent_programs = HealthProgram.objects.annotate(
+            enrolled_clients=Count('enrollments')
+        ).order_by('-created_at')[:5]
+
+        # Get program statistics
+        program_stats = HealthProgram.objects.annotate(
+            enrolled_count=Count('enrollments')
+        ).order_by('-enrolled_count')[:5]
+
+        # Get enrollment trends
+        enrollment_trend = Enrollment.objects.filter(
+            enrollment_date__gte=six_months_ago
+        ).annotate(
+            month=TruncMonth('enrollment_date')
+        ).values('month').annotate(
+            count=Count('id')
+        ).order_by('month')
+
+        # Prepare trend data for chart
+        trend_labels = []
+        trend_data = []
+        for entry in enrollment_trend:
+            trend_labels.append(entry['month'].strftime('%B %Y'))
+            trend_data.append(entry['count'])
+
+        return Response({
+            'totalClients': total_clients,
+            'totalPrograms': total_programs,
+            'enrolledClients': enrolled_clients,
+            'recentClients': ClientSerializer(recent_clients, many=True).data,
+            'recentPrograms': HealthProgramSerializer(recent_programs, many=True).data,
+            'programStats': HealthProgramSerializer(program_stats, many=True).data,
+            'enrollmentTrend': {
+                'labels': trend_labels,
+                'datasets': [{
+                    'label': 'Monthly Enrollments',
+                    'data': trend_data,
+                    'fill': False,
+                    'borderColor': 'rgb(75, 192, 192)',
+                    'tension': 0.1
+                }]
+            }
+        })

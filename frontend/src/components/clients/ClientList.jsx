@@ -7,40 +7,42 @@ const ClientList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredClients, setFilteredClients] = useState([]);
 
+  // Fetch all clients on component mount
   useEffect(() => {
     fetchClients();
   }, []);
 
+  // Filter clients whenever search query changes
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredClients(clients);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = clients.filter(client => 
+      client.full_name.toLowerCase().includes(query) ||
+      client.email.toLowerCase().includes(query) ||
+      client.phone_number.toLowerCase().includes(query) ||
+      (client.national_id && client.national_id.toLowerCase().includes(query))
+    );
+    setFilteredClients(filtered);
+  }, [searchQuery, clients]);
+
   const fetchClients = async () => {
     try {
       const response = await api.get('/clients/');
-      // Handle both paginated and non-paginated responses
-      setClients(response.data.results || response.data || []);
+      const clientsData = response.data.results || response.data || [];
+      setClients(clientsData);
+      setFilteredClients(clientsData);
       setError(null);
     } catch (err) {
       setError('Failed to fetch clients');
       console.error('API Error:', err);
-      setClients([]); // Initialize as empty array on error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault(); // Prevent form submission default behavior
-    setLoading(true);
-    try {
-      // Use POST method for search
-      const response = await api.post('/clients/search/', {
-        query: searchQuery
-      });
-      setClients(response.data.results || response.data || []);
-      setError(null);
-    } catch (err) {
-      setError('Failed to search clients');
-      console.error('Search error:', err.response?.data || err);
       setClients([]);
+      setFilteredClients([]);
     } finally {
       setLoading(false);
     }
@@ -73,32 +75,28 @@ const ClientList = () => {
 
       <div className="card mb-4">
         <div className="card-body">
-          <form onSubmit={handleSearch}>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search clients..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button 
-                type="submit" 
-                className="btn btn-outline-primary"
-                disabled={loading}
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search clients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setSearchQuery('')}
+                title="Clear search"
               >
-                {loading ? (
-                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                ) : (
-                  'Search'
-                )}
+                ×
               </button>
-            </div>
-          </form>
+            )}
+          </div>
         </div>
       </div>
 
-      {clients.length > 0 ? (
+      {filteredClients.length > 0 ? (
         <div className="card">
           <div className="card-body">
             <div className="table-responsive">
@@ -113,7 +111,7 @@ const ClientList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {clients.map(client => (
+                  {filteredClients.map(client => (
                     <tr key={client.id}>
                       <td>{client.full_name}</td>
                       <td>{client.email}</td>
@@ -138,11 +136,18 @@ const ClientList = () => {
                 </tbody>
               </table>
             </div>
+            {searchQuery && (
+              <div className="text-muted mt-2">
+                Found {filteredClients.length} of {clients.length} clients
+              </div>
+            )}
           </div>
         </div>
       ) : (
         <div className="alert alert-info">
-          No clients found. {searchQuery && 'Try adjusting your search criteria.'}
+          {searchQuery 
+            ? 'No clients match your search criteria.' 
+            : 'No clients found in the system.'}
         </div>
       )}
     </div>

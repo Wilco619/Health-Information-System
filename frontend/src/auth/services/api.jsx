@@ -90,6 +90,9 @@ export const clientAPI = {
     
   deleteClient: (clientId) =>
     api.delete(`/clients/${clientId}/`),
+
+  getDashboardStats: () => 
+    api.get('/dashboard/'),
 };
 
 export default api;
