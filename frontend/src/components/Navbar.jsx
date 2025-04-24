@@ -1,8 +1,8 @@
-import { useAuth } from '../auth/hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/hooks/useAuth';
 
 const Navbar = () => {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -12,21 +12,46 @@ const Navbar = () => {
         </Link>
         
         {user && (
-          <div className="navbar-nav ms-auto">
-            <span className="nav-item nav-link text-light">
-              Welcome, {user.username}
-            </span>
+          <>
             <button 
-              className="btn btn-outline-light ms-2" 
-              onClick={logout}
+              className="navbar-toggler" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#navbarNav"
             >
-              Logout
+              <span className="navbar-toggler-icon"></span>
             </button>
-          </div>
+            
+            <div className="collapse navbar-collapse" id="navbarNav">
+              <ul className="navbar-nav me-auto">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/dashboard">Dashboard</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/programs">Programs</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/clients">Clients</Link>
+                </li>
+              </ul>
+              
+              <div className="navbar-nav">
+                <span className="nav-item nav-link text-light">
+                  Welcome, {user.username}
+                </span>
+                <button 
+                  className="btn btn-outline-light ms-2" 
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

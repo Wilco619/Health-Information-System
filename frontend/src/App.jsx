@@ -6,6 +6,11 @@ import LoginForm from './auth/components/LoginForm'
 import OTPVerification from './auth/components/OTPVerification'
 import Dashboard from './components/Dashboard'
 import Navbar from './components/Navbar'
+import ProgramList from './components/programs/ProgramList'
+import ClientList from './components/clients/ClientList'
+import ClientProfile from './components/clients/ClientProfile'
+import ClientRegistration from './components/clients/ClientRegistration'
+import ClientEnrollment from './components/clients/ClientEnrollment'
 
 import './App.css'
 
@@ -21,6 +26,7 @@ function App() {
             <Route path="/verify-otp" element={<OTPVerification />} />
             
             {/* Protected Routes */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route
               path="/dashboard"
               element={
@@ -29,9 +35,46 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
-            {/* Default Route */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/programs"
+              element={
+                <ProtectedRoute>
+                  <ProgramList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clients"
+              element={
+                <ProtectedRoute>
+                  <ClientList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clients/:id"
+              element={
+                <ProtectedRoute>
+                  <ClientProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clients/new"
+              element={
+                <ProtectedRoute>
+                  <ClientRegistration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clients/:id/enroll"
+              element={
+                <ProtectedRoute>
+                  <ClientEnrollment />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
