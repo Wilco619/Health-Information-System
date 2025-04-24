@@ -110,6 +110,22 @@ class ClientViewSet(viewsets.ModelViewSet):
         enrollment = serializer.save()
         
         return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['delete'], url_path='enrollments/(?P<enrollment_id>[^/.]+)')
+    def remove_enrollment(self, request, pk=None, enrollment_id=None):
+        client = self.get_object()
+        try:
+            enrollment = Enrollment.objects.get(
+                id=enrollment_id,
+                client=client
+            )
+            enrollment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Enrollment.DoesNotExist:
+            return Response(
+                {'error': 'Enrollment not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class EnrollmentViewSet(viewsets.ModelViewSet):

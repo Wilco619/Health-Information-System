@@ -93,6 +93,9 @@ export const clientAPI = {
 
   getDashboardStats: () => 
     api.get('/dashboard/'),
+
+  unenrollClient: (clientId, enrollmentId) =>
+    api.delete(`/clients/${clientId}/enrollments/${enrollmentId}/`),
 };
 
 export default api;

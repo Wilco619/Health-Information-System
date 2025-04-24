@@ -9,6 +9,8 @@ const ClientProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUnenrollModal, setShowUnenrollModal] = useState(false);
+  const [enrollmentToRemove, setEnrollmentToRemove] = useState(null);
 
   useEffect(() => {
     fetchClientProfile();
@@ -36,6 +38,21 @@ const ClientProfile = () => {
       console.error('Delete error:', err);
     }
     setShowDeleteModal(false);
+  };
+
+  const handleUnenroll = async () => {
+    try {
+      await clientAPI.unenrollClient(id, enrollmentToRemove.id);
+      // Refresh client data to update enrollments
+      await fetchClientProfile();
+      setError(null);
+    } catch (err) {
+      setError('Failed to unenroll client from program');
+      console.error('Unenroll error:', err);
+    } finally {
+      setShowUnenrollModal(false);
+      setEnrollmentToRemove(null);
+    }
   };
 
   if (loading) return <div className="text-center mt-5"><div className="spinner-border" /></div>;
@@ -84,12 +101,17 @@ const ClientProfile = () => {
 
       <div className="card">
         <div className="card-body">
-          <h4 className="card-title">Enrolled Programs <span><Link 
-                          to={`/clients/${client.id}/enroll`} 
-                          className="btn btn-sm btn-success"
-                        >
-                          Enroll
-                        </Link></span></h4>
+          <h4 className="card-title">
+            Enrolled Programs 
+            <span>
+              <Link 
+                to={`/clients/${client.id}/enroll`} 
+                className="btn btn-sm btn-success ms-2"
+              >
+                Enroll
+              </Link>
+            </span>
+          </h4>
           
           {client.enrollments && client.enrollments.length > 0 ? (
             <div className="table-responsive">
@@ -100,6 +122,7 @@ const ClientProfile = () => {
                     <th>Enrollment Date</th>
                     <th>Status</th>
                     <th>Notes</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,6 +136,17 @@ const ClientProfile = () => {
                         </span>
                       </td>
                       <td>{enrollment.notes || 'N/A'}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => {
+                            setEnrollmentToRemove(enrollment);
+                            setShowUnenrollModal(true);
+                          }}
+                        >
+                          Withdraw From Program
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -153,6 +187,55 @@ const ClientProfile = () => {
                   onClick={handleDelete}
                 >
                   Delete Client
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUnenrollModal && enrollmentToRemove && (
+        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Withdrawal</h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => {
+                    setShowUnenrollModal(false);
+                    setEnrollmentToRemove(null);
+                  }}
+                />
+              </div>
+              <div className="modal-body">
+                <p>
+                  Are you sure you want to unenroll {client.full_name} from{' '}
+                  <strong>{enrollmentToRemove.program_name}</strong>?
+                </p>
+                <p className="text-warning">
+                  <i className="bi bi-exclamation-triangle me-2"></i>
+                  This will Withdraw the client from this program.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => {
+                    setShowUnenrollModal(false);
+                    setEnrollmentToRemove(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-danger"
+                  onClick={handleUnenroll}
+                >
+                  Withdraw Client
                 </button>
               </div>
             </div>
