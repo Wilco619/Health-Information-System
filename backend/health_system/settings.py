@@ -22,15 +22,44 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'django_celery_results',
     # Local apps
-    
+    'patients',
     'authentication',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite default port
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -116,17 +145,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-email-password'
-DEFAULT_FROM_EMAIL = 'Health System <your-email@gmail.com>'
+EMAIL_HOST_USER = 'wmilcinovic01@gmail.com'
+EMAIL_HOST_PASSWORD = 'lymm owce yjah bkit'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Celery settings
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
+    # CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    # CELERY_RESULT_BACKEND = 'django-db'
+    # CELERY_ACCEPT_CONTENT = ['application/json']
+    # CELERY_TASK_SERIALIZER = 'json'
+    # CELERY_RESULT_SERIALIZER = 'json'
+    # CELERY_TIMEZONE = TIME_ZONE
 
 # OTP settings
 OTP_EXPIRE_TIME = 10  # OTP validity in minutes

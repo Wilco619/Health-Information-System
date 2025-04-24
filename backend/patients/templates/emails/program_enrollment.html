@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Enrollment Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        .program-name {
+            font-size: 22px;
+            color: #0066cc;
+            margin: 15px 0;
+        }
+        .program-details {
+            background-color: #e6f2ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Health Information System</div>
+        </div>
+        
+        <p>Hello {{ client.first_name }},</p>
+        
+        <p>We are pleased to confirm your enrollment in the following health program:</p>
+        
+        <div class="program-details">
+            <div class="program-name">{{ program.name }} ({{ program.code }})</div>
+            <p><strong>Description:</strong> {{ program.description }}</p>
+            <p><strong>Enrollment Date:</strong> {{ enrollment.enrollment_date|date:"F j, Y" }}</p>
+            {% if enrollment.notes %}
+            <p><strong>Notes:</strong> {{ enrollment.notes }}</p>
+            {% endif %}
+        </div>
+        
+        <p>Your participation in this program will provide you with access to specialized care, resources, and support tailored to your health needs.</p>
+        
+        <p>What happens next:</p>
+        <ol>
+            <li>A healthcare provider will contact you shortly to discuss your specific needs.</li>
+            <li>You will receive information about upcoming appointments and services.</li>
+            <li>You can access program resources through your health system account.</li>
+        </ol>
+        
+        <p>If you have any questions or need additional information about the {{ program.name }} program, please don't hesitate to contact your healthcare provider.</p>
+        
+        <p>Thank you for trusting us with your healthcare needs.</p>
+        
+        <p>Best regards,<br>
+        The Health Information System Team</p>
+        
+        <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+            <p>&copy; 2025 Health Information System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
