@@ -28,15 +28,18 @@ const ClientList = () => {
   };
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form submission default behavior
     setLoading(true);
     try {
-      const response = await api.get(`/clients/search/?query=${searchQuery}`);
+      // Use POST method for search
+      const response = await api.post('/clients/search/', {
+        query: searchQuery
+      });
       setClients(response.data.results || response.data || []);
       setError(null);
     } catch (err) {
       setError('Failed to search clients');
-      console.error('API Error:', err);
+      console.error('Search error:', err.response?.data || err);
       setClients([]);
     } finally {
       setLoading(false);
@@ -79,8 +82,16 @@ const ClientList = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="btn btn-outline-primary">
-                Search
+              <button 
+                type="submit" 
+                className="btn btn-outline-primary"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                ) : (
+                  'Search'
+                )}
               </button>
             </div>
           </form>

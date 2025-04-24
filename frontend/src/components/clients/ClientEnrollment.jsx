@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../auth/services/api';
+import { clientAPI } from '../../auth/services/api';
 
 const ClientEnrollment = () => {
   const { id } = useParams();
@@ -18,20 +18,20 @@ const ClientEnrollment = () => {
     const fetchData = async () => {
       try {
         const [clientResponse, programsResponse] = await Promise.all([
-          api.get(`/clients/${id}/`),
-          api.get('/programs/')
+          clientAPI.getClient(id),
+          clientAPI.getPrograms()
         ]);
         
-        // Ensure we're getting an array from the response
         const programsData = programsResponse.data.results || programsResponse.data || [];
         
         setClient(clientResponse.data);
         setPrograms(Array.isArray(programsData) ? programsData : []);
         setError(null);
       } catch (err) {
-        setError('Failed to load required data');
+        const errorMessage = err.message || 'Failed to load required data';
+        setError(errorMessage);
         console.error('Loading error:', err);
-        setPrograms([]); // Initialize as empty array on error
+        setPrograms([]);
       } finally {
         setLoading(false);
       }
@@ -43,16 +43,17 @@ const ClientEnrollment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+
     try {
-      await api.post(`/clients/${id}/enroll/`, formData);
+      await clientAPI.enroll(id, formData.program_id, formData.notes);
       navigate(`/clients/${id}`);
     } catch (err) {
-      // Handle specific error messages from the backend
-      const errorMessage = err.response?.data?.non_field_errors?.[0] || 
-                         err.response?.data?.message ||
+      const errorMessage = err.non_field_errors?.[0] || 
+                         err.message || 
                          'Failed to enroll client in program';
       setError(errorMessage);
-      console.error('Enrollment error:', err.response?.data || err);
+      console.error('Enrollment error:', err);
     } finally {
       setLoading(false);
     }
@@ -86,6 +87,10 @@ const ClientEnrollment = () => {
               
               <div className="alert alert-info">
                 <strong>Client:</strong> {client.full_name}
+                <br />
+                <strong>Contact:</strong> {client.phone_number}
+                <br />
+                <strong>National ID:</strong> {client.national_id}
               </div>
 
               {error && (

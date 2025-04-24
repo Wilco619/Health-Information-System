@@ -66,4 +66,21 @@ export const authAPI = {
   }
 };
 
+export const clientAPI = {
+  search: (query) => 
+    api.post('/clients/search/', { query }),
+    
+  enroll: (clientId, programId, notes) => 
+    api.post(`/clients/${clientId}/enroll/`, {
+      program_id: programId,
+      notes: notes
+    }),
+
+  getClient: (clientId) =>
+    api.get(`/clients/${clientId}/`),
+    
+  getPrograms: () =>
+    api.get('/programs/')
+};
+
 export default api;

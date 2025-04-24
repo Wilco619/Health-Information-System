@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import api from '../../auth/services/api';
 
@@ -55,7 +56,13 @@ const ClientProfile = () => {
 
       <div className="card">
         <div className="card-body">
-          <h4 className="card-title">Enrolled Programs</h4>
+          <h4 className="card-title">Enrolled Programs <span><Link 
+                          to={`/clients/${client.id}/enroll`} 
+                          className="btn btn-sm btn-success"
+                        >
+                          Enroll
+                        </Link></span></h4>
+          
           {client.enrollments && client.enrollments.length > 0 ? (
             <div className="table-responsive">
               <table className="table">
