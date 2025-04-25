@@ -99,9 +99,17 @@ const ClientList = () => {
       {filteredClients.length > 0 ? (
         <div className="card">
           <div className="card-body">
-            <div className="table-responsive">
+            <div className="table-responsive" style={{ 
+              maxHeight: '600px', 
+              overflowY: 'auto'
+            }}>
               <table className="table table-hover">
-                <thead>
+                <thead style={{ 
+                  position: 'sticky', 
+                  top: 0, 
+                  backgroundColor: 'white',
+                  zIndex: 1 
+                }}>
                   <tr>
                     <th>Name</th>
                     <th>Email</th>

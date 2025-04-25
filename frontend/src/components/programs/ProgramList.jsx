@@ -216,44 +216,50 @@ const ProgramList = () => {
                   </small>
                 )}
               </h3>
-              {filteredPrograms.length > 0 ? (
-                <div className="list-group">
-                  {filteredPrograms.map(program => (
-                    <div key={program.id} className="list-group-item">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <h5 className="mb-1">{program.name} ({program.code})</h5>
-                          <p className="mb-1">{program.description}</p>
-                          <small>Created: {new Date(program.created_at).toLocaleDateString()}</small>
-                        </div>
-                        <div className="btn-group">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => handleEdit(program)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => {
-                              setProgramToDelete(program);
-                              setShowDeleteModal(true);
-                            }}
-                          >
-                            Delete
-                          </button>
+              <div className="programs-list" style={{ 
+                maxHeight: '600px', 
+                overflowY: 'auto',
+                paddingRight: '5px'
+              }}>
+                {filteredPrograms.length > 0 ? (
+                  <div className="list-group">
+                    {filteredPrograms.map(program => (
+                      <div key={program.id} className="list-group-item">
+                        <div className="d-flex justify-content-between align-items-start">
+                          <div>
+                            <h5 className="mb-1">{program.name} ({program.code})</h5>
+                            <p className="mb-1">{program.description}</p>
+                            <small>Created: {new Date(program.created_at).toLocaleDateString()}</small>
+                          </div>
+                          <div className="btn-group">
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleEdit(program)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => {
+                                setProgramToDelete(program);
+                                setShowDeleteModal(true);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted">
-                  {searchQuery 
-                    ? 'No programs match your search.'
-                    : 'No programs available.'}
-                </p>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted">
+                    {searchQuery 
+                      ? 'No programs match your search.'
+                      : 'No programs available.'}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
