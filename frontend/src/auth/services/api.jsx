@@ -24,6 +24,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      // Clear auth data on unauthorized
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
     if (error.response) {
       // Server responded with error
       console.error('Server Error:', error.response.data);
@@ -47,6 +53,8 @@ export const authAPI = {
         username: username,
         password: password 
       });
+      // Store username for OTP verification
+      localStorage.setItem('pending_username', username);
       return response.data;
     } catch (error) {
       throw error;
@@ -56,11 +64,23 @@ export const authAPI = {
   verifyOTP: async (username, otp_code) => {
     try {
       const response = await api.post('/auth/verify-otp/', { 
-        username: username,
-        otp_code: otp_code 
+        username, 
+        otp_code 
       });
+
+      // Validate response
+      if (!response.data?.token) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Clear pending username
+      localStorage.removeItem('pending_username');
+      
       return response.data;
     } catch (error) {
+      if (error.response?.data) {
+        throw new Error(error.response.data.message || 'OTP verification failed');
+      }
       throw error;
     }
   }

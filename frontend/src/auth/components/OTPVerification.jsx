@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
@@ -13,27 +13,42 @@ const OTPVerification = () => {
 
   const username = location.state?.username;
 
-  if (!username) {
-    navigate('/login');
-    return null;
-  }
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
       const response = await authAPI.verifyOTP(username, otp);
-      const { token, ...userData } = response.data;
-      login(userData, token);
-      navigate('/dashboard');
+      console.log('OTP Response:', response); // Debug response
+
+      // Ensure we have all required data
+      if (!response?.token) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Login with full user data
+      await login({
+        token: response.token,
+        id: response.user_id,
+        username: response.username,
+        email: response.email
+      });
+
+      navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'OTP verification failed');
+      console.error('OTP Error:', err);
+      setError(err?.message || 'OTP verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [otp, username, login, navigate]);
+
+  // Redirect if no username
+  if (!username) {
+    navigate('/login', { replace: true });
+    return null;
+  }
 
   return (
     <div className="container mt-5">
